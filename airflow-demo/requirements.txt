@@ -1,0 +1,13 @@
+# Astro Runtime includes the following pre-installed providers packages: https://www.astronomer.io/docs/astro/runtime-image-architecture#provider-packages
+
+# Common AI provider (pydantic-ai based). Extras:
+#   anthropic -> Anthropic SDK, enables model_id="anthropic:..."
+#   sql       -> SQLToolset + sqlglot (used by @task.agent's SQLToolset and SQL validation)
+apache-airflow-providers-common-ai[anthropic,sql]==0.5.0
+
+# @task.llm_sql compiles natural language -> SQL via the common-sql DataFusion
+# engine, which needs the (optional) datafusion bindings.
+apache-airflow-providers-common-sql[datafusion]
+
+# Postgres hook/connection for the sample database.
+apache-airflow-providers-postgres

@@ -1,0 +1,27 @@
+# Sample Postgres for the data_investigation DAG.
+#
+# IMPORTANT: the service must join Astro's "airflow" network so the
+# scheduler/worker can resolve it by service name. Without `networks: [airflow]`
+# the service lands on the compose "default" network instead, and the Airflow
+# containers fail with: could not translate host name "demo-postgres".
+#
+# "airflow" is the network Astro's base compose defines (it materializes as
+# "<project>_airflow"); Compose merges our service into it.
+#
+# From inside the Airflow containers the DB is reachable at host "demo-postgres"
+# port 5432 (that is what the `demo_postgres` connection points at).
+# On the host machine you can inspect it at localhost:5433.
+services:
+  demo-postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo
+    ports:
+      - "5433:5432"
+    volumes:
+      # *.sql files here run once, on first initialization of the volume.
+      - ./include/seed:/docker-entrypoint-initdb.d:ro
+    networks:
+      - airflow

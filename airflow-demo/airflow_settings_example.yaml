@@ -1,0 +1,36 @@
+# This file allows you to configure Airflow Connections, Pools, and Variables in a single place for local development only.
+# NOTE: json dicts can be added to the conn_extra field as yaml key value pairs. See the example below.
+#
+# This file is gitignored, so it is safe to keep your local API key here.
+#
+# For more information, refer to our docs: https://www.astronomer.io/docs/astro/cli/develop-project#configure-airflow_settingsyaml-local-development-only
+
+airflow:
+  connections:
+    # LLM connection used by the @task.llm / @task.agent / @task.llm_sql /
+    # @task.llm_branch decorators. The Anthropic API key goes in conn_password.
+    #   >>> Paste your Anthropic API key into conn_password below. <<<
+    - conn_id: pydanticai_default
+      conn_type: pydanticai
+      conn_password: ChangeMe
+      conn_extra:
+        model: anthropic:claude-sonnet-5
+
+    # Sample database (see docker-compose.override.yml + include/seed/).
+    # Host "demo-postgres" is the service name on the Airflow Docker network.
+    - conn_id: demo_postgres
+      conn_type: postgres
+      conn_host: demo-postgres
+      conn_schema: demo
+      conn_login: demo
+      conn_password: demo
+      conn_port: 5432
+
+  pools:
+    - pool_name:
+      pool_slot:
+      pool_description:
+
+  variables:
+    - variable_name:
+      variable_value:

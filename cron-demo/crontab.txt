@@ -1,0 +1,36 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  cron-demo · crontab 등록 예시
+#  ───────────────────────────────────────────────────────────────────────
+#    설치:  crontab crontab.txt      (기존 crontab 을 이 내용으로 덮어씀)
+#    확인:  crontab -l
+#    해제:  crontab -r
+#  ⚠️  실제로 걸어보려면 아래 CRON_DEMO / PY 경로를 본인 환경에 맞게 고칠 것.
+# ═══════════════════════════════════════════════════════════════════════
+#
+# cron 은 로그인 셸이 아니다. PATH·SHELL·환경변수를 여기서 직접 선언해야 한다.
+# 안 그러면 "python3: command not found" 같은 걸로 조용히 실패한다.
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+CRON_DEMO=/Users/yeonguk/Workshop/cron-demo
+PY=/usr/bin/python3
+
+
+# ── 방법 A) 잡을 따로따로 등록한다 ─────────────────────────────────────
+# 문제점:
+#   · '순서'를 표현할 수단이 없어서 → '시간 간격'으로 추측한다 (2:00, 2:10, 2:20).
+#   · extract 가 10분 넘게 걸리면?  transform 이 빈/이전 데이터로 돌아간다.
+#   · extract 가 실패하면?          transform·load 는 그것도 모른 채 그냥 돈다.
+#   · 로그는?                       잡마다 파일이 갈라져 한 번의 '실행'을 추적하기 어렵다.
+#
+# ┌ 분 ┬ 시 ┬ 일 ┬ 월 ┬ 요일
+0 2 * * *  cd $CRON_DEMO/jobs && $PY extract.py   >> $CRON_DEMO/logs/extract.log   2>&1
+10 2 * * * cd $CRON_DEMO/jobs && $PY transform.py >> $CRON_DEMO/logs/transform.log 2>&1
+20 2 * * * cd $CRON_DEMO/jobs && $PY load.py      >> $CRON_DEMO/logs/load.log      2>&1
+
+
+# ── 방법 B) 래퍼 스크립트 한 줄로 등록한다 ─────────────────────────────
+# 순서/중단은 run_pipeline.sh 가 처리 → 방법 A 보다 낫다.
+# 하지만 재시도·백필·알림·의존 그래프·모니터링은 여전히 전부 '직접' 만들어야 한다.
+# (방법 B 를 쓰려면 위 방법 A 세 줄은 주석 처리하고 아래 줄의 주석을 풀 것)
+#
+# 0 2 * * *  $CRON_DEMO/run_pipeline.sh >> $CRON_DEMO/logs/pipeline.log 2>&1
